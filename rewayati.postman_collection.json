@@ -1,0 +1,343 @@
+{
+	"info": {
+		"_postman_id": "1eb4021d-74c7-49bc-9d18-074a6b4cbeb5",
+		"name": "rewayati",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "38466302"
+	},
+	"item": [
+		{
+			"name": "User Authentication",
+			"item": [
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"url": {
+							"raw": "https://whitesmoke-coyote-648419.hostingersite.com/api/users/login",
+							"protocol": "https",
+							"host": [
+								"whitesmoke-coyote-648419",
+								"hostingersite",
+								"com"
+							],
+							"path": [
+								"api",
+								"users",
+								"login"
+							]
+						}
+					}
+				},
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"url": {
+							"raw": "https://whitesmoke-coyote-648419.hostingersite.com/api/users/register",
+							"protocol": "https",
+							"host": [
+								"whitesmoke-coyote-648419",
+								"hostingersite",
+								"com"
+							],
+							"path": [
+								"api",
+								"users",
+								"register"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get User Info",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "https://whitesmoke-coyote-648419.hostingersite.com/api/users/me",
+							"protocol": "https",
+							"host": [
+								"whitesmoke-coyote-648419",
+								"hostingersite",
+								"com"
+							],
+							"path": [
+								"api",
+								"users",
+								"me"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Password Reset",
+			"item": [
+				{
+					"name": "Send Reset Link",
+					"request": {
+						"method": "POST",
+						"url": {
+							"raw": "https://whitesmoke-coyote-648419.hostingersite.com/api/users/reset-password",
+							"protocol": "https",
+							"host": [
+								"whitesmoke-coyote-648419",
+								"hostingersite",
+								"com"
+							],
+							"path": [
+								"api",
+								"users",
+								"reset-password"
+							]
+						}
+					}
+				},
+				{
+					"name": "Reset Password",
+					"request": {
+						"method": "POST",
+						"url": {
+							"raw": "https://whitesmoke-coyote-648419.hostingersite.com/api/users/reset",
+							"protocol": "https",
+							"host": [
+								"whitesmoke-coyote-648419",
+								"hostingersite",
+								"com"
+							],
+							"path": [
+								"api",
+								"users",
+								"reset"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Stories",
+			"item": [
+				{
+					"name": "Get All Stories",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "https://whitesmoke-coyote-648419.hostingersite.com/api/stories",
+							"protocol": "https",
+							"host": [
+								"whitesmoke-coyote-648419",
+								"hostingersite",
+								"com"
+							],
+							"path": [
+								"api",
+								"stories"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Story Details",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "https://whitesmoke-coyote-648419.hostingersite.com/api/story-details/:id",
+							"protocol": "https",
+							"host": [
+								"whitesmoke-coyote-648419",
+								"hostingersite",
+								"com"
+							],
+							"path": [
+								"api",
+								"story-details",
+								":id"
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Story",
+					"request": {
+						"method": "POST",
+						"url": {
+							"raw": "https://whitesmoke-coyote-648419.hostingersite.com/api/stories",
+							"protocol": "https",
+							"host": [
+								"whitesmoke-coyote-648419",
+								"hostingersite",
+								"com"
+							],
+							"path": [
+								"api",
+								"stories"
+							]
+						}
+					}
+				},
+				{
+					"name": "Publish Story",
+					"request": {
+						"method": "PUT",
+						"url": {
+							"raw": "https://whitesmoke-coyote-648419.hostingersite.com/api/stories/:storyId/publish",
+							"protocol": "https",
+							"host": [
+								"whitesmoke-coyote-648419",
+								"hostingersite",
+								"com"
+							],
+							"path": [
+								"api",
+								"stories",
+								":storyId",
+								"publish"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Categories",
+			"item": [
+				{
+					"name": "Get All Categories",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "https://whitesmoke-coyote-648419.hostingersite.com/api/categories",
+							"protocol": "https",
+							"host": [
+								"whitesmoke-coyote-648419",
+								"hostingersite",
+								"com"
+							],
+							"path": [
+								"api",
+								"categories"
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Category",
+					"request": {
+						"method": "POST",
+						"url": {
+							"raw": "https://whitesmoke-coyote-648419.hostingersite.com/api/categories/update",
+							"protocol": "https",
+							"host": [
+								"whitesmoke-coyote-648419",
+								"hostingersite",
+								"com"
+							],
+							"path": [
+								"api",
+								"categories",
+								"update"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Tags",
+			"item": [
+				{
+					"name": "Add Tags to Story",
+					"request": {
+						"method": "POST",
+						"url": {
+							"raw": "https://whitesmoke-coyote-648419.hostingersite.com/api/stories/:storyId/tags",
+							"protocol": "https",
+							"host": [
+								"whitesmoke-coyote-648419",
+								"hostingersite",
+								"com"
+							],
+							"path": [
+								"api",
+								"stories",
+								":storyId",
+								"tags"
+							]
+						}
+					}
+				},
+				{
+					"name": "Remove Tags from Story",
+					"request": {
+						"method": "POST",
+						"url": {
+							"raw": "https://whitesmoke-coyote-648419.hostingersite.com/api/stories/:storyId/tags/remove",
+							"protocol": "https",
+							"host": [
+								"whitesmoke-coyote-648419",
+								"hostingersite",
+								"com"
+							],
+							"path": [
+								"api",
+								"stories",
+								":storyId",
+								"tags",
+								"remove"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Reviews",
+			"item": [
+				{
+					"name": "Add Feedback",
+					"request": {
+						"method": "POST",
+						"url": {
+							"raw": "https://whitesmoke-coyote-648419.hostingersite.com/api/stories/:storyId/feedback",
+							"protocol": "https",
+							"host": [
+								"whitesmoke-coyote-648419",
+								"hostingersite",
+								"com"
+							],
+							"path": [
+								"api",
+								"stories",
+								":storyId",
+								"feedback"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Feedback",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "https://whitesmoke-coyote-648419.hostingersite.com/api/stories/:storyId/feedback",
+							"protocol": "https",
+							"host": [
+								"whitesmoke-coyote-648419",
+								"hostingersite",
+								"com"
+							],
+							"path": [
+								"api",
+								"stories",
+								":storyId",
+								"feedback"
+							]
+						}
+					}
+				}
+			]
+		}
+	]
+}
