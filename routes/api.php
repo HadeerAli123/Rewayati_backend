@@ -25,6 +25,8 @@ Route::post('users/email/resend', [VerificationController::class, 'resend'])
     ->middleware('auth:sanctum');
 
 
+//  Route::put('/user/update', [UserController::class, 'updateUser'])->middleware('auth:sanctum');
+
 Route::post('users/login', [UserController::class, 'login']);
 Route::post('users/register', [UserController::class, 'register']);
 Route::get('users/me', [UserController::class, 'getUser'])->middleware('auth:sanctum');
@@ -77,8 +79,7 @@ Route::get('/stories/deleted',
 ->middleware('auth:sanctum');
 
 //////////////////////////route about category
-
-Route::post('/categories/update', [CategoryController::class, 'update']);
+Route::post('/categories/update', [CategoryController::class, 'updateCategory']);
 
 
 
@@ -91,6 +92,7 @@ Route::prefix('stories/{story}')->group(function () {
     Route::delete('chapters/{chapter}', [ChapterController::class, 'destroy'])->middleware('auth:sanctum');
 });
 
+
 ////////////////////////////////////////////////routes about readlater 
 
 Route::post('read_later/myreadlater_list', [ReadLaterController::class , 'inReadlater'])->middleware('auth:sanctum');
@@ -98,7 +100,7 @@ Route::delete('readlater_lists/remove/{story_id}', [ReadLaterController::class ,
 ////////////////////////////////////////////////////routes about tag 
 Route::post('/stories/{story_id}/tags', [TagController::class, 'storeStoryTags'])->middleware('auth:sanctum');
 Route::get('/category/{categoryId}/tags', [TagController::class, 'getTagsByCategory']);
-Route::post('/stories-by-tags', [TagController::class, 'getStoriesByTags']);
+// Route::post('/stories-by-tags', [TagController::class, 'getStoriesByTags']);
 Route::post('/stories/{storyId}/tags/remove', [TagController::class, 'removeTagsFromStory'])->middleware('auth:sanctum');
 Route::put('/stories/{story}/tags', [TagController::class, 'updateStoryTags'])->middleware('auth:sanctum');
 //////////////////////////////////////////////////routes about reviews

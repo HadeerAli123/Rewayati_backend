@@ -230,6 +230,7 @@ public function getUser(User $user)
     return new UserResource($user);
 
  }
+ ////////////////
 public function updateUser(Request $request) {
     $user = Auth::user(); 
 
@@ -259,7 +260,7 @@ $user->save();
     
 return response()->json(['message' => 'User updated successfully', 'user' => $user]);
 }
-public function selectCategoriesAndGetStories(Request $request)
+public function selectCategoriesAndGetStories(Request $request)///////////////
 {
     $validated = $request->validate([
         'categories' => 'required|array|min:3|max:3', 

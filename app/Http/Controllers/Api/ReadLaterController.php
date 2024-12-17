@@ -19,7 +19,7 @@ class ReadLaterController extends Controller
         //
     }
 
-
+///////////////////القصة دي موجودة في الريد ليتر ولا 
     public function inReadlater(Request $request)
     {
         try {
