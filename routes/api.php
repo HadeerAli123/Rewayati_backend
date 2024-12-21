@@ -24,9 +24,9 @@ Route::post('users/reset', [UserController::class, 'resetPassword'])->name('pass
 Route::post('users/email/resend', [VerificationController::class, 'resend'])
     ->middleware('auth:sanctum');
 
-Route::post('/users/select-categories-and-get-stories', [UserController::class, 'selectCategoriesAndGetStories']);///// not updated in server 
+Route::post('/users/select-categories-and-get-stories', [UserController::class, 'selectCategoriesAndGetStories']);
 
- Route::put('/user/update', [UserController::class, 'updateUser'])->middleware('auth:sanctum');///// not updated in server 
+ Route::put('/user/update', [UserController::class, 'updateUser'])->middleware('auth:sanctum');
 
 Route::post('users/login', [UserController::class, 'login']);
 Route::post('users/register', [UserController::class, 'register']);
