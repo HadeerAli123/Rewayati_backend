@@ -35,8 +35,11 @@ class MyResetPasswordNotification extends Notification
             ->line('this mail is becouse you wanted to reset your password so please click the below button to reset.')
             ->line("It's always important to be cautious with passwords. Make sure to use strong, unique passwords.")
 
-            ->action('Reset Password', env('FRONT_DOMAIN_URL') .'reset'. '?token=' . urlencode($this->token)
-                . '&email=' . urlencode($notifiable->email))
+            // ->action('Reset Password', env('FRONT_DOMAIN_URL') .'reset'. '?token=' . urlencode($this->token)
+            //     . '&email=' . urlencode($notifiable->email))
+            ->action('Reset Password', env('https://whitesmoke-coyote-648419.hostingersite.com') . '/auth/reset-password?token=' . urlencode($this->token)
+    . '&email=' . urlencode($notifiable->email))
+
             ->line('If you did not request a password reset, no further action is required.');
     }
 

@@ -24,12 +24,13 @@ Route::post('users/reset', [UserController::class, 'resetPassword'])->name('pass
 Route::post('users/email/resend', [VerificationController::class, 'resend'])
     ->middleware('auth:sanctum');
 
+Route::post('/users/select-categories-and-get-stories', [UserController::class, 'selectCategoriesAndGetStories']);///// not updated in server 
 
-//  Route::put('/user/update', [UserController::class, 'updateUser'])->middleware('auth:sanctum');
+ Route::put('/user/update', [UserController::class, 'updateUser'])->middleware('auth:sanctum');///// not updated in server 
 
 Route::post('users/login', [UserController::class, 'login']);
 Route::post('users/register', [UserController::class, 'register']);
-Route::get('users/me', [UserController::class, 'getUser'])->middleware('auth:sanctum');
+Route::get('users/currentuser', [UserController::class, 'getUser'])->middleware('auth:sanctum');///
 Route::post('/users/logout', [UserController::class, 'logoutFromOneDevice'])->middleware('auth:sanctum');
 Route::get('/email/verify/{id}/{hash}', [VerificationController::class, 'verify'])
     ->middleware(['signed'])
@@ -37,7 +38,6 @@ Route::get('/email/verify/{id}/{hash}', [VerificationController::class, 'verify'
 
 Route::apiResource('users', UserController::class)->middleware('auth:sanctum');
 Route::post('users/update-password', [UserController::class , 'updatePassword'])->middleware('auth:sanctum');
-Route::apiResource('categories', CategoryController::class); //done
 Route::apiResource('Chapters', ChapterController::class)->middleware('auth:sanctum');
 Route::apiResource('Reviews', ReviewController::class)->middleware('auth:sanctum');
 Route::apiResource('Reading', ReadingController::class)->middleware('auth:sanctum');
@@ -66,21 +66,24 @@ Route::get('/categories/{category}/top-stories', [StoryController::class, 'getTo
 Route::get('/tags/{tag}/stories', [StoryController::class, 'getStoriesByTag']);
 Route::get('/latest-stories', [StoryController::class, 'getadvertisementStoryByLatestStory']);
 Route::get('story-details/{id}', [StoryController::class, 'storyDetails']);
-Route::get('/stories/mystory', [StoryController::class , 'getMyStory'])->middleware('auth:sanctum');
+Route::get('/stories/mystory', [StoryController::class , 'getMyStory'])->middleware('auth:sanctum');//// not found 
 
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::put('/stories/{storyId}/publish', [StoryController::class, 'publishStory']);
 
-    Route::get('/stories/published', [StoryController::class, 'getPublishedStories']);
+    Route::get('/stories/published', [StoryController::class, 'getPublishedStories']);/////// notfound
 });
 Route::get('/stories/deleted',
 [StoryController::class, 'getAlldeleted'])
-->middleware('auth:sanctum');
+->middleware('auth:sanctum');///////// not found
 
 //////////////////////////route about category
-Route::post('/categories/update', [CategoryController::class, 'updateCategory']);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::apiResource('categories', CategoryController::class)->except('index');
+});
 
+Route::get('categories', [CategoryController::class, 'index']);
 
 
 ///////////////////////////////routes about chapter

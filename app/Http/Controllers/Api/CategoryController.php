@@ -62,33 +62,27 @@ class CategoryController extends Controller
      * Update the specified resource in storage.
      */
     
-    public function updateCategory(Request $request)
-    {
-        // return response()->json(['message' => $request->all() ], 400);
-
-        $validator = Validator::make($request->all(), [
-            'id' => 'required|exists:categories,id',
-            'category_name' => 'required|string|max:255|unique:categories,category_name,' . $request->id,
-            
-        ]); 
-
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-
-        }
-        
-        $category = Category::find($request->id);
-        if (!$category) {
-            return response()->json(['error' => 'not found'], 404);
-        }
-       
-        $category->category_name = $request->category_name;
-
-        $category->save();
-
-        return response()->json(['message' => 'Category updated successfully', 'category' => $category], 200);
-    }
+     public function update(Request $request, $id)
+     {
+         $validator = Validator::make($request->all(), [
+             'category_name' => 'required|string|max:255|unique:categories,category_name,' . $id,
+         ]);
+     
+         if ($validator->fails()) {
+             return response()->json(['errors' => $validator->errors()], 422);
+         }
+     
+         $category = Category::find($id);
+         if (!$category) {
+             return response()->json(['error' => 'Category not found'], 404);
+         }
+     
+         $category->category_name = $request->category_name;
+         $category->save();
+     
+         return response()->json(['message' => 'Category updated successfully', 'category' => $category], 200);
+     }
+     
 
 
 

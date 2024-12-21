@@ -139,11 +139,18 @@ class UserController extends Controller
      public function updatePassword(Request $request)
      {
      
-         $std_validator = Validator::make($request->all(), [
-             'currentPassword' => 'required',
-             'newPassword' => 'required|min:8',
-             'password_confirmation' => 'required|same:newPassword',
-         ]);
+        $std_validator = Validator::make($request->all(), [
+            'currentPassword' => 'required',
+            'newPassword' => 'required|min:8',
+            'password_confirmation' => 'required|same:newPassword',
+        ], [
+            'currentPassword.required' => 'Current password is required.',
+            'newPassword.required' => 'New password is required.',
+            'newPassword.min' => 'New password must be at least 8 characters long.',
+            'password_confirmation.required' => 'Password confirmation is required.',
+            'password_confirmation.same' => 'Password confirmation does not match the new password.',
+        ]);
+        
      
          if ($std_validator->fails()) {
              return response()->json(['errors' => $std_validator->errors()], 400);
@@ -166,24 +173,26 @@ class UserController extends Controller
     
     function register(Request $request) {
         try {
-        $std_validator = Validator::make($request->all(), [
-        
-            'device_name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:8|confirmed',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'gender' => 'required|string|in:male,female,other',
-            'username' => 'required|string|min:3|max:50|unique:users,username',
-            'role' => 'required|string|max:50',
-        ], [
-            "email.required" => "You must add an email to log in.",
-            "email.email" => "The email format you provided is invalid.",
-            "password.confirmed" => "The password confirmation does not match.",
-            "image.image" => "The image must be a valid image file.",
-            "image.mimes" => "The image must be in jpeg, png, jpg, or gif format.",
-            "image.max" => "The image size should not exceed 2MB.",
-        ]);
-        
+            $std_validator = Validator::make($request->all(), [
+                'device_name' => 'required|string|max:255',
+                'email' => 'required|email|unique:users,email',
+                'password' => 'required|string|min:8|',
+                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'gender' => 'required|string|in:male,female,other',
+                'username' => 'required|string|min:3|max:50|unique:users,username',
+                'role' => 'required|string|max:50',
+            ], [
+              
+                "email.required" => "You must add an email to log in.",
+                "email.email" => "The email format you provided is invalid.",
+                "email.unique" => "This email is already registered. Please choose another one.", 
+                "password.confirmed" => "The password confirmation does not match.",
+                "image.image" => "The image must be a valid image file.",
+                "image.mimes" => "The image must be in jpeg, png, jpg, or gif format.",
+                "image.max" => "The image size should not exceed 2MB.",
+                "username.required" => "The username field is required.",
+                "username.unique" => "This username is already taken. Please choose another one.", 
+            ]);
     
     $my_path = '';
     if(request()->hasFile("image")){
@@ -238,9 +247,19 @@ public function updateUser(Request $request) {
         'email' => 'nullable|email|unique:users,email,' . $user->id,
         'gender' => 'nullable|string|in:male,female,other',
         'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-        'username' => 'required|string|min:3|max:50|unique:users,username',
-        
+        'username' => 'nullable|string|min:3|max:50|unique:users,username',
+    ], [
+        'email.email' => 'Please provide a valid email address.',
+        'email.unique' => 'This email is already in use by another account.',
+        'gender.in' => 'Gender must be one of the following: male, female, or other.',
+        'image.image' => 'The uploaded file must be an image.',
+        'image.mimes' => 'The image must be in jpeg, png, jpg, or gif format.',
+        'image.max' => 'The image size must not exceed 2MB.',
+        'username.min' => 'The username must be at least 3 characters long if provided.',
+        'username.max' => 'The username must not exceed 50 characters.',
+        'username.unique' => 'This username is already taken by another user.',
     ]);
+    
     
 if ($validator->fails()) {
     return response()->json(['errors' => $validator->errors()], 400);

@@ -434,7 +434,7 @@ public function getPublishedStories()
      */
 
     ///////////////////////DONE
-    public function show(Story $story)
+    public function show(Story $story)//
     {
         return new StoryResource($story->load('category'));
     }
@@ -443,7 +443,7 @@ public function getPublishedStories()
      * Update the specified resource in storage.
      */
     ////////////DONE
-    public function updateStory(Request $request)
+    public function updateStory(Request $request)//
     {
         try {
         
@@ -538,7 +538,7 @@ public function getPublishedStories()
 
 
 
-    public function restore($story_id)
+    public function restore($story_id)//
          {
              $story = Story::withTrashed()->find($story_id);
              if (!$story) {
@@ -551,7 +551,7 @@ public function getPublishedStories()
     
 
 
-     public function destroy(Story  $story)
+     public function destroy(Story  $story)//
      {
 
          $story->delete();
@@ -571,7 +571,7 @@ public function getPublishedStories()
          return response()->json(['message' => 'story hard deleted successfully.']);
      }
 
-     public function getAlldeleted()
+     public function getAlldeleted()//
      {
    $stories = Story::onlyTrashed()->with(['category'])->get();    
    return StoryResource::collection($stories);
