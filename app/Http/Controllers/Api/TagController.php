@@ -119,15 +119,29 @@ public function getTagsByCategory($categoryId)
     public function updateStoryTags(Request $request, Story $story)
     {
         $validator = Validator::make($request->all(), [
-            'tag_id' => 'required|array',
-            'tag_id.*' => 'integer|exists:tags,id',
+            'old_tag_id' => 'required|array',
+            'new_tag_id' => 'required|array',
+            'old_tag_id.*' => 'required|integer|exists:tags,id',
+            'new_tag_id.*' => 'required|integer|exists:tags,id',
         ]);
     
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 400);
         }
     
-        $story->tags()->sync($request->tag_id); 
+        if (count($request->old_tag_id) !== count($request->new_tag_id)) {
+            return response()->json(['error' => 'old_tag_id and new_tag_id counts must match'], 400);
+        }
+    
+        foreach ($request->old_tag_id as $index => $oldTagId) {
+            $newTagId = $request->new_tag_id[$index];
+    
+            
+            $story->tags()->detach($oldTagId);
+    
+           
+            $story->tags()->attach($newTagId);
+        }
     
         return response()->json(['message' => 'Tags updated successfully'], 200);
     }

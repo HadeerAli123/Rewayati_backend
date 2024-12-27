@@ -52,7 +52,7 @@ class User extends Authenticatable
     }
     public function stories()
     {
-        return $this->belongsToMany(Story::class, 'story_user')->withTimestamps();
+        return $this->hasMany(Story::class);
                  
                    
     }

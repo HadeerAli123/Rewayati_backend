@@ -9,7 +9,7 @@ class Story extends Model
     use HasFactory ,SoftDeletes;
 
     protected $fillable=[
-'title','description','language','maincharacters','copyright','cover_image','advertisement_image','content_type','status','category_id'
+ 'user_id','title','description','language','maincharacters','copyright','cover_image','advertisement_image','content_type','status','category_id'
     ];
     protected $dates = ['deleted_at'];
     public function isDraft()
@@ -34,9 +34,9 @@ class Story extends Model
 public function tags(){
     return $this->belongsToMany(Tag::class ,'story_tag');
 }
-public function users()
+public function user()
 {
-    return $this->belongsToMany(User::class, 'story_user')->withTimestamps();
+    return $this->belongsTo(User::class);
               
               
 }

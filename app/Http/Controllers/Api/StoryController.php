@@ -23,7 +23,7 @@ class StoryController extends Controller
      * Display a listing of the resource.
      */
     public function getAllStories(){
-        $stories=Story::with('category','tags')  ->select('id', 'title', 'cover_image', 'description', 'status', 'content_type', 'created_at')
+        $stories=Story::with('category','tags')->select('id', 'title', 'cover_image', 'description', 'status', 'content_type', 'created_at')
         ->orderBy('created_at', 'desc')->get();
 
         if ($stories->isEmpty()) {
@@ -36,7 +36,7 @@ class StoryController extends Controller
     
     ////////////////////////////////////////////////////////////////////////////
   
-    public function getStoriesByCategory(Category $category)
+    public function getStoriesByCategory(Category $category)/// categeory not found
 {
     $stories = Story::where('category_id', $category->id)
         ->with(['category','tags:id,name'])
@@ -156,7 +156,7 @@ public function getStoriesByTag($tagId)
 
    
 
-     public function getCompletedStoriesByCategory(Category $category)
+     public function getCompletedStoriesByCategory(Category $category)//// categoery not found
      {
          $completedStories = Story::where('category_id', $category->id) 
              ->where('status', 'completed')
@@ -259,6 +259,7 @@ public function storyDetails($id)
 public function getMyStory()
 {
     $stories = Auth::user()->stories()->with('category')->get();
+   
     return StoryResource::collection($stories);
 }
 
@@ -272,7 +273,7 @@ public function getMyStory()
     {
         try {
             $validator = Validator::make($request->all(), [
-              
+                
     'title' => 'required|string|max:255',
     'description' => 'required|string|max:1000',
     'language' => 'required|string|max:255',
@@ -371,6 +372,7 @@ public function getMyStory()
             
            
         $story = new Story();
+        
         $story->title = $data['title'];
         $story->language = $data['language'];
         $story->description = $data['description'];
@@ -381,14 +383,14 @@ public function getMyStory()
         $story->publication_status = 'draft';
         $story->content_type = $data['content_type'];
         $story->category_id = $data['category_id'];
+        $story->user_id = Auth::id();
 
         $story->save();
 
         foreach ($data['maincharacters'] as $character) {
             $story->mainCharacters()->create(['name' => $character]);
         }
-
-        $story->users()->attach(Auth::id());
+        $story->load('mainCharacters');
 
         return response()->json(['message' => 'Story saved as draft', 'story' => $story], 201);
 
@@ -449,7 +451,7 @@ public function getPublishedStories()
         
     
             $validator = Validator::make($request->all(), [
-                 'id' => 'required|exists:stories,id',
+        'id' => 'required|exists:stories,id',
                 'title' => 'string|max:255',
                 'description' => 'string|max:1000',
                 'language' => 'string|max:255',
@@ -468,16 +470,16 @@ public function getPublishedStories()
             }
     
             $data = $validator->validated();
-            $story = Story::find($data['id']);
-
+            $story = Auth::user()->stories()->withTrashed()->find($data['id']);
+            if (!$story) {
+                return response()->json(['message' => 'Story not found or not owned by the user'], 404);
+            }
             $category = Category::find($data['category_id']);
 
             if (!$category) {
                 return response()->json(['error' => 'Invalid category ID'], 404);
             }
-            if (!$story) {
-                return response()->json(['error' => 'story not found'], 404);
-            }
+           
             if ($request->hasFile('cover_image')) {
             
                 if ($story->cover_image) {
@@ -503,6 +505,7 @@ public function getPublishedStories()
                 $adPath = $request->file('advertisement_image')->store('advertisement_images', 'stories');
                 $story->advertisement_image = asset('uploads/stories/' . $adPath);
             }
+          
             
     
             $story->title = $data['title'] ?? $story->title;
@@ -540,10 +543,10 @@ public function getPublishedStories()
 
     public function restore($story_id)//
          {
-             $story = Story::withTrashed()->find($story_id);
+             $story = Auth:: user()->stories()->withTrashed()->find($story_id);
              if (!$story) {
-                 return response()->json(['message' => 'story not found.'], 404);
-             }
+                return response()->json(['message' => 'Story not found or not owned by the user'], 404);
+            }
              $story->restore();
              return response()->json(['message' => 'done suuccessfully.'], 200);
          }
@@ -551,27 +554,36 @@ public function getPublishedStories()
     
 
 
-     public function destroy(Story  $story)//
-     {
+   
+public function destroy($storyId)
+{
+    $story = Auth::user()->stories()->find($storyId);
 
-         $story->delete();
-    
-         return response()->json(['message' => 'Story soft deleted successfully.']);
-     }
+    if (!$story) {
+        return response()->json(['message' => 'Story not found or not owned by the user'], 404);
+    }
 
-     public function forceDestroy($id)
-     {
-         $story = Story::withTrashed()->find($id);
-     
-         if (!$story) {
-             return response()->json(['message' => 'story not found.'], 404);
-         }
-     
-         $story->forceDelete();
-         return response()->json(['message' => 'story hard deleted successfully.']);
-     }
+    $story->delete();
 
-     public function getAlldeleted()//
+    return response()->json(['message' => 'Story soft deleted successfully.']);
+}
+/////////////////////////////////////////////////////////////
+public function forceDestroy($id)
+{
+   
+
+    $userStory = Auth::user()->stories()->withTrashed()->find($id);
+    if (!$userStory) {
+        return response()->json(['message' => 'Story not found or not owned by the user'], 404);
+    }
+
+    $userStory->forceDelete();
+
+    return response()->json(['message' => 'Story hard deleted successfully.']);
+}
+
+
+     public function getAlldeleted()////
      {
    $stories = Story::onlyTrashed()->with(['category'])->get();    
    return StoryResource::collection($stories);

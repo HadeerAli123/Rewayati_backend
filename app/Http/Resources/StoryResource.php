@@ -26,6 +26,7 @@ class StoryResource extends JsonResource
         'status'=>$this->status,
         'deleted_at' => $this->deleted_at, 
         'category'=>new CategoryResource($this->whenLoaded('category')),
+        'user' => new UserResource($this->whenLoaded('user')),
         'created_at' => $this->created_at->toDateTimeString(), 
         'updated_at' => $this->updated_at->toDateTimeString(), 
 

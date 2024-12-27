@@ -23,7 +23,9 @@ class CustomVerifyEmail extends BaseVerifyEmail implements ShouldQueue
     {
         $this->token = $token;
     }
-
+   
+      
+ 
     /**
      * Get the notification's delivery channels.
      *
@@ -39,12 +41,20 @@ class CustomVerifyEmail extends BaseVerifyEmail implements ShouldQueue
      */
     public function toMail($notifiable)
     {
+        $verificationUrl = $this->verificationUrl($notifiable);
+
+
         return (new MailMessage)
+        
             ->subject('Reset Your Password')
             ->line('You are receiving this email because we received a password reset request for your account.')
             ->action('Reset Password', url('api/reset-password') . '?token=' . urlencode($this->token)
                 . '&email=' . urlencode($notifiable->email))
             ->line('If you did not request a password reset, no further action is required.');
+            // ->subject('Verify Your Email Address')
+            // ->view('emails.verify-email', ['url' => $verificationUrl])
+            // ->view('verfiy_email');
+          
     }
 
     /**

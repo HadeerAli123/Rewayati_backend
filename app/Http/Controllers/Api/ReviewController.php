@@ -29,58 +29,58 @@ class ReviewController extends Controller
      * Store a newly created resource in storage.
      */
    
-    public function store(Request $request)
-    {
-        try {
+//     public function store(Request $request)
+//     {
+//         try {
 
-            $validator = Validator::make($request->all(), [
-                'story_id' => 'required|integer|exists:stories,id',
-                'feedback' => 'nullable|string|max:255',
-                'has_voted' => 'required|boolean',
+//             $validator = Validator::make($request->all(), [
+//                 'story_id' => 'required|integer|exists:stories,id',
+//                 'feedback' => 'nullable|string|max:255',
+//                 'has_voted' => 'required|boolean',
 
-            ]);
+//             ]);
             
-            if ($validator->fails()) {
-                return response()->json(['errors' => $validator->errors()], 400);
-            }
-            $existingReview = Review::where('story_id', $request->input('story_id'))
-            ->where('user_id', Auth::id())
-            ->first();
+//             if ($validator->fails()) {
+//                 return response()->json(['errors' => $validator->errors()], 400);
+//             }
+//             $existingReview = Review::where('story_id', $request->input('story_id'))
+//             ->where('user_id', Auth::id())
+//             ->first();
 
-        if ($existingReview) {
+//         if ($existingReview) {
           
-            if ($request->has('feedback')) {
-                $existingReview->feedback = $request->input('feedback');
-            }
+//             if ($request->has('feedback')) {
+//                 $existingReview->feedback = $request->input('feedback');
+//             }
 
-            if ($request->has('has_voted')) {
-                $existingReview->has_voted = $request->input('has_voted');
-            }
+//             if ($request->has('has_voted')) {
+//                 $existingReview->has_voted = $request->input('has_voted');
+//             }
 
-            $existingReview->save();
+//             $existingReview->save();
 
-            return response()->json([
-                'message' => 'Review updated successfully'
-            ], 200);
-} else {
+//             return response()->json([
+//                 'message' => 'Review updated successfully'
+//             ], 200);
+// } else {
 
 
-            $item=new Review();
+//             $item=new Review();
 
-            $item->story_id = $request->input('story_id');
-            $item->has_voted = $request->input('has_voted');
-            $item->feedback = $request->input('feedback');
+//             $item->story_id = $request->input('story_id');
+//             $item->has_voted = $request->input('has_voted');
+//             $item->feedback = $request->input('feedback');
 
-            $item->user_id = Auth::id();
-            $item->save();
+//             $item->user_id = Auth::id();
+//             $item->save();
     
-            return response()->json(['message' => 'review added successfully'], 201);
-}
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
+//             return response()->json(['message' => 'review added successfully'], 201);
+// }
+//         } catch (\Exception $e) {
+//             return response()->json(['error' => $e->getMessage()], 500);
+//         }
     
-    }
+  //  }
     /**
      * Display the specified resource.
      */

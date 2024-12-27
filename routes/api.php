@@ -47,27 +47,11 @@ Route::apiResource('contact-messages', ContactMessageController::class); //done
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::apiResource('stories', StoryController::class)->only(['store']); 
-    Route::post('/stories/update', [StoryController::class, 'updateStory']); 
+    Route::put('stories/update', [StoryController::class, 'updateStory']);
+    Route::get('/stories/mystory', [StoryController::class , 'getMyStory'])->middleware('auth:sanctum');//// not found 
     Route::delete('stories/{story}', [StoryController::class, 'destroy']);
     Route::delete('stories/{id}/force-delete', [StoryController::class, 'forceDestroy']); 
 });
-Route::get('stories/{story}', [StoryController::class, 'show']);
-Route::get('/stories', [StoryController::class, 'getAllStories']);
-Route::get('/stories/restore/{story_id}',
-[StoryController::class, 'restore'])
-->middleware('auth:sanctum');
-Route::get('stories/bycategory/most-rate/{category}', [StoryController::class , 'getTopStoriesByCategory']);
-Route::get('/stories/myStory', [StoryController::class , 'getMyStory'])->middleware('auth:sanctum');
-Route::get('stories/byCategory/{category}', [StoryController::class, 'getStoriesByCategory']);
-Route::get('/categories/{category}/completed-stories', [StoryController::class, 'getCompletedStoriesByCategory']);
-Route::get('stories/{category_id}/not-paid-chapters', [StoryController::class, 'getStoriesWithNotPaidChapters']);
-Route::get('/stories/readlater/all', [StoryController::class , 'storiesinReadLater'])->middleware('auth:sanctum');
-Route::get('/categories/{category}/top-stories', [StoryController::class, 'getTopViewedStoriesWithTags']);
-Route::get('/tags/{tag}/stories', [StoryController::class, 'getStoriesByTag']);
-Route::get('/latest-stories', [StoryController::class, 'getadvertisementStoryByLatestStory']);
-Route::get('story-details/{id}', [StoryController::class, 'storyDetails']);
-Route::get('/stories/mystory', [StoryController::class , 'getMyStory'])->middleware('auth:sanctum');//// not found 
-
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::put('/stories/{storyId}/publish', [StoryController::class, 'publishStory']);
@@ -77,6 +61,22 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::get('/stories/deleted',
 [StoryController::class, 'getAlldeleted'])
 ->middleware('auth:sanctum');///////// not found
+
+Route::get('stories/{story}', [StoryController::class, 'show'])->middleware('auth:sanctum');
+Route::get('/stories', [StoryController::class, 'getAllStories']);
+Route::get('/stories/restore/{story_id}',
+[StoryController::class, 'restore'])
+->middleware('auth:sanctum');
+Route::get('stories/bycategory/most-rate/{category}', [StoryController::class , 'getTopStoriesByCategory']);
+Route::get('stories/byCategory/{category}', [StoryController::class, 'getStoriesByCategory']);
+Route::get('/categories/{category}/completed-stories', [StoryController::class, 'getCompletedStoriesByCategory']);
+Route::get('stories/{category_id}/not-paid-chapters', [StoryController::class, 'getStoriesWithNotPaidChapters']);
+Route::get('/stories/readlater/all', [StoryController::class , 'storiesinReadLater'])->middleware('auth:sanctum');
+Route::get('/categories/{category}/top-stories', [StoryController::class, 'getTopViewedStoriesWithTags']);
+Route::get('/tags/{tag}/stories', [StoryController::class, 'getStoriesByTag'])->middleware('auth:sanctum');
+Route::get('/latest-stories', [StoryController::class, 'getadvertisementStoryByLatestStory']);
+Route::get('story-details/{id}', [StoryController::class, 'storyDetails'])->middleware('auth:sanctum');
+
 
 //////////////////////////route about category
 Route::middleware('auth:sanctum')->group(function () {
