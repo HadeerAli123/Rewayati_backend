@@ -7,7 +7,7 @@ return [
 
 'allowed_methods' => ['*'], 
 
-'allowed_origins' => ['http://localhost:4200', 'https://your-frontend-domain.com'], 
+'allowed_origins' => ['http://localhost:4200', 'https://rawayat-frontend.vercel.app/'], 
 
 'allowed_origins_patterns' => [],
 
