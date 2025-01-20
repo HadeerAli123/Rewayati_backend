@@ -14,14 +14,14 @@ class CustomVerifyEmail extends BaseVerifyEmail implements ShouldQueue
 {
     use Queueable;
 
-    protected $token;
+  
 
     /**
      * Create a new notification instance.
      */
-    public function __construct($token)
+    public function __construct()
     {
-        $this->token = $token;
+   
     }
    
       
@@ -43,20 +43,15 @@ class CustomVerifyEmail extends BaseVerifyEmail implements ShouldQueue
     {
         $verificationUrl = $this->verificationUrl($notifiable);
 
-
         return (new MailMessage)
-        
-            ->subject('Reset Your Password')
-            ->line('You are receiving this email because we received a password reset request for your account.')
-            ->action('Reset Password', url('api/reset-password') . '?token=' . urlencode($this->token)
-                . '&email=' . urlencode($notifiable->email))
-            ->line('If you did not request a password reset, no further action is required.');
-            // ->subject('Verify Your Email Address')
-            // ->view('emails.verify-email', ['url' => $verificationUrl])
-            // ->view('verfiy_email');
-          
+            ->subject('تأكيد بريدك الإلكتروني')
+            ->greeting('مرحبًا!')
+            ->line('شكرًا لتسجيلك في موقعنا.')
+            ->line('لإكمال عملية التسجيل، يرجى تأكيد بريدك الإلكتروني.')
+            ->action('تأكيد البريد الإلكتروني', $verificationUrl)
+            ->line('إذا لم تقم بإنشاء هذا الحساب، يرجى تجاهل هذه الرسالة.')
+            ->salutation('تحياتنا، فريق الدعم');
     }
-
     /**
      * Get the array representation of the notification.
      *
@@ -67,3 +62,11 @@ class CustomVerifyEmail extends BaseVerifyEmail implements ShouldQueue
         return [];
     }
 }
+
+        // ->subject('Reset Your Password')
+        //     ->line('You are receiving this email because we received a password reset request for your account.')
+        //     ->action('Verify Email', $verificationUrl)
+        //     ->line('If you did not request a password reset, no further action is required.')
+        //     // ->subject('Verify Your Email Address')
+        //     // ->view('emails.verify-email', ['url' => $verificationUrl])
+        //     ->view('verify_email', ['url' => $verificationUrl]); 

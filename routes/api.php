@@ -24,66 +24,76 @@ Route::post('users/reset', [UserController::class, 'resetPassword'])->name('pass
 Route::post('users/email/resend', [VerificationController::class, 'resend'])
     ->middleware('auth:sanctum');
 
-Route::post('/users/select-categories-and-get-stories', [UserController::class, 'selectCategoriesAndGetStories']);
-
- Route::put('/user/update', [UserController::class, 'updateUser'])->middleware('auth:sanctum');
-
 Route::post('users/login', [UserController::class, 'login']);
 Route::post('users/register', [UserController::class, 'register']);
-Route::get('users/currentuser', [UserController::class, 'getUser'])->middleware('auth:sanctum');///
+Route::get('users/currentuser', [UserController::class, 'getUser'])->middleware('auth:sanctum');
 Route::post('/users/logout', [UserController::class, 'logoutFromOneDevice'])->middleware('auth:sanctum');
 Route::get('/email/verify/{id}/{hash}', [VerificationController::class, 'verify'])
     ->middleware(['signed'])
     ->name('verification.verify');
+    
+ Route::put('/user/update', [UserController::class, 'updateUser'])->middleware('auth:sanctum');
+ 
+
 
 Route::apiResource('users', UserController::class)->middleware('auth:sanctum');
 Route::post('users/update-password', [UserController::class , 'updatePassword'])->middleware('auth:sanctum');
+Route::apiResource('categories', CategoryController::class); //done
 Route::apiResource('Chapters', ChapterController::class)->middleware('auth:sanctum');
 Route::apiResource('Reviews', ReviewController::class)->middleware('auth:sanctum');
 Route::apiResource('Reading', ReadingController::class)->middleware('auth:sanctum');
 Route::apiResource('Tags', TagController::class)->middleware('auth:sanctum');
 Route::apiResource('readlater', ReadLaterController::class)->middleware('auth:sanctum');
-Route::apiResource('contact-messages', ContactMessageController::class); //done
+// 
+Route::middleware('auth:sanctum')->group(function () {
+    Route::apiResource('contact-messages', ContactMessageController::class)->only(['index', 'destroy']);
+});
+
+Route::post('contact-messages', [ContactMessageController::class, 'store']);
+
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::apiResource('stories', StoryController::class)->only(['store']); 
-    Route::put('stories/update', [StoryController::class, 'updateStory']);
-    Route::get('/stories/mystory', [StoryController::class , 'getMyStory'])->middleware('auth:sanctum');//// not found 
+   Route::put('/stories/update', [StoryController::class, 'updateStory']);
+ Route::get('/stories/current-user-stories', [StoryController::class, 'getMyStory']);
     Route::delete('stories/{story}', [StoryController::class, 'destroy']);
     Route::delete('stories/{id}/force-delete', [StoryController::class, 'forceDestroy']); 
+    Route::get('/stories/top-viewed', [StoryController::class, 'getTopViewedStoriesWithTags']);
 });
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::put('/stories/{storyId}/publish', [StoryController::class, 'publishStory']);
 
-    Route::get('/stories/published', [StoryController::class, 'getPublishedStories']);/////// notfound
+    Route::get('/stories/published', [StoryController::class, 'getPublishedStories']);
 });
 Route::get('/stories/deleted',
 [StoryController::class, 'getAlldeleted'])
-->middleware('auth:sanctum');///////// not found
+->middleware('auth:sanctum');
 
 Route::get('stories/{story}', [StoryController::class, 'show'])->middleware('auth:sanctum');
 Route::get('/stories', [StoryController::class, 'getAllStories']);
 Route::get('/stories/restore/{story_id}',
 [StoryController::class, 'restore'])
 ->middleware('auth:sanctum');
-Route::get('stories/bycategory/most-rate/{category}', [StoryController::class , 'getTopStoriesByCategory']);
-Route::get('stories/byCategory/{category}', [StoryController::class, 'getStoriesByCategory']);
-Route::get('/categories/{category}/completed-stories', [StoryController::class, 'getCompletedStoriesByCategory']);
-Route::get('stories/{category_id}/not-paid-chapters', [StoryController::class, 'getStoriesWithNotPaidChapters']);
+Route::get('stories/bycategory/most-rate/{category}', [StoryController::class , 'getTopStoriesByCategory'])->middleware('auth:sanctum');
+Route::get('stories/byCategory/{category}', [StoryController::class, 'getStoriesByCategory'])->middleware('auth:sanctum');
+Route::get('/categories/{category}/completed-stories', [StoryController::class, 'getCompletedStoriesByCategory'])->middleware('auth:sanctum');
+Route::get('stories/{category_id}/paid-chapters', [StoryController::class, 'getStoriesWithPaidChapters'])->middleware('auth:sanctum');
 Route::get('/stories/readlater/all', [StoryController::class , 'storiesinReadLater'])->middleware('auth:sanctum');
-Route::get('/categories/{category}/top-stories', [StoryController::class, 'getTopViewedStoriesWithTags']);
 Route::get('/tags/{tag}/stories', [StoryController::class, 'getStoriesByTag'])->middleware('auth:sanctum');
-Route::get('/latest-stories', [StoryController::class, 'getadvertisementStoryByLatestStory']);
+Route::get('/latest-stories', [StoryController::class, 'getadvertisementStoryByLatestStory'])->middleware('auth:sanctum');
 Route::get('story-details/{id}', [StoryController::class, 'storyDetails'])->middleware('auth:sanctum');
 
 
 //////////////////////////route about category
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('categories', CategoryController::class)->except('index');
 });
 
 Route::get('categories', [CategoryController::class, 'index']);
+
+
 
 
 ///////////////////////////////routes about chapter
@@ -95,32 +105,31 @@ Route::prefix('stories/{story}')->group(function () {
     Route::delete('chapters/{chapter}', [ChapterController::class, 'destroy'])->middleware('auth:sanctum');
 });
 
-
 ////////////////////////////////////////////////routes about readlater 
 
 Route::post('read_later/myreadlater_list', [ReadLaterController::class , 'inReadlater'])->middleware('auth:sanctum');
 Route::delete('readlater_lists/remove/{story_id}', [ReadLaterController::class , 'removeReadLaterlist'])->middleware('auth:sanctum');
 ////////////////////////////////////////////////////routes about tag 
 Route::post('/stories/{story_id}/tags', [TagController::class, 'storeStoryTags'])->middleware('auth:sanctum');
-Route::get('/category/{categoryId}/tags', [TagController::class, 'getTagsByCategory']);
-// Route::post('/stories-by-tags', [TagController::class, 'getStoriesByTags']);
+Route::get('/category/{categoryId}/tags', [TagController::class, 'getTagsByCategory'])->middleware('auth:sanctum');
+Route::post('/stories-by-tags', [TagController::class, 'getStoriesByTags'])->middleware('auth:sanctum');
 Route::post('/stories/{storyId}/tags/remove', [TagController::class, 'removeTagsFromStory'])->middleware('auth:sanctum');
 Route::put('/stories/{story}/tags', [TagController::class, 'updateStoryTags'])->middleware('auth:sanctum');
 //////////////////////////////////////////////////routes about reviews
 Route::post('/stories/{storyId}/vote', [ReviewController::class, 'toggleVote'])->middleware('auth:sanctum');
 Route::post('/stories/{storyId}/feedback', [ReviewController::class, 'addFeedback'])->middleware('auth:sanctum');
 Route::delete('/stories/{storyId}/feedback', [ReviewController::class, 'deleteFeedback'])->middleware('auth:sanctum');
-Route::get('reviews/story/{story_id}', [ReviewController::class, 'getAllReviews']);
+Route::get('reviews/story/{story_id}', [ReviewController::class, 'getAllReviews'])->middleware('auth:sanctum');
 Route::post('/reviews/{reviewId}/block', [ReviewController::class, 'blockFeedback'])->middleware('auth:sanctum');
 Route::get('/stories/{storyId}/feedback', [ReviewController::class, 'getFeedbackActive']);
 Route::delete('stories/{story_id}/reviews/{review_id}', [ReviewController::class, 'destroy'])->middleware('auth:sanctum');
+Route::delete('/stories/{storyId}/review', [ReviewController::class, 'deleteReview'])->middleware('auth:sanctum');
 ////////////////////////////////////////////////routes abou reading 
 Route::post('/stories/{storyId}/start-reading', [ReadingController::class, 'startReading'])->middleware('auth:sanctum');
 // Route::delete('tags/{tagId}', [TagController::class, 'deletingTag'])->middleware('auth:sanctum');
 // Route::put('tags/{tagId}', [TagController::class, 'updateTag'])->middleware('auth:sanctum');
 // Route::delete('/stories/{storyId}/review', [ReviewController::class, 'deleteReview'])->middleware('auth:sanctum');
-
-
+Route::post('/users/select-categories-and-get-stories', [UserController::class, 'selectCategoriesAndGetStories']);
 
 
 

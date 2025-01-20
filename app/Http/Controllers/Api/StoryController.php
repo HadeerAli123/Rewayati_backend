@@ -23,8 +23,10 @@ class StoryController extends Controller
      * Display a listing of the resource.
      */
     public function getAllStories(){
-        $stories=Story::with('category','tags')->select('id', 'title', 'cover_image', 'description', 'status', 'content_type', 'created_at')
-        ->orderBy('created_at', 'desc')->get();
+   $stories = Story::with('category', 'tags', 'user:id,username')
+    ->select('id', 'title', 'cover_image', 'description', 'status', 'content_type', 'created_at', 'category_id', 'user_id')
+    ->orderBy('created_at', 'desc')
+    ->get();
 
         if ($stories->isEmpty()) {
             return response()->json(['message' => 'No stories found.'], 404);
@@ -39,7 +41,7 @@ class StoryController extends Controller
     public function getStoriesByCategory(Category $category)/// categeory not found
 {
     $stories = Story::where('category_id', $category->id)
-        ->with(['category','tags:id,name'])
+        ->with(['category','tags:id,name','user:id,username'])
         ->leftJoin('reviews', 'stories.id', '=', 'reviews.story_id')
         ->leftJoin('readings', 'stories.id', '=', 'readings.story_id')
         ->leftJoin('chapters', 'stories.id', '=', 'chapters.story_id')  
@@ -50,7 +52,8 @@ class StoryController extends Controller
             'stories.cover_image',
             'stories.status',
             'stories.content_type',
-            'stories.category_id', 
+            'stories.category_id',
+            'stories.user_id',
             DB::raw('COUNT(DISTINCT CASE WHEN reviews.has_voted = 1 THEN reviews.id END) as votes_count'),
             DB::raw('COUNT(DISTINCT readings.id) as readers_count'),  
             DB::raw('COUNT(DISTINCT chapters.part_number) as chapters_count')  
@@ -62,7 +65,8 @@ class StoryController extends Controller
             'stories.cover_image',
             'stories.status',
             'stories.content_type',
-            'stories.category_id'
+            'stories.category_id',
+            'stories.user_id' 
         )
 
         ->get();
@@ -75,31 +79,40 @@ class StoryController extends Controller
 }
 
 /////////////////////////////////////////////////////////////////////////////////
-public function getTopViewedStoriesWithTags($categoryId)
+public function getTopViewedStoriesWithTags()
 {
-
-    $category = Category::find($categoryId);
-
-    if (!$category) {
-        return response()->json(['message' => 'Please select a valid category.'], 404);
-    }
-
-    $stories = Story::where('category_id', $categoryId)
-        ->with(['tags'=>function($query){
-            $query->select('tags.id','tags.name');
-        }])
+    $stories = Story::with([
+            'tags:id,name',  
+            'category', 
+            'user:id,username'
+        ])
         ->leftJoin('readings', 'stories.id', '=', 'readings.story_id') 
         ->select(
             'stories.id', 
+            'stories.title',
+            'stories.description',
+            'stories.status',
+            'stories.content_type',
+            'stories.user_id',
             'stories.cover_image',
+            'stories.category_id',
             DB::raw('COUNT(readings.id) as views') 
         )
-        ->groupBy('stories.id', 'stories.cover_image') 
+        ->groupBy(
+            'stories.id', 
+            'stories.cover_image', 
+            'stories.title', 
+            'stories.description',
+            'stories.status', 
+            'stories.content_type', 
+            'stories.user_id', 
+            'stories.category_id'
+        ) 
         ->orderByDesc('views') 
         ->limit(10)
         ->get();
 
- 
+   
     if ($stories->isEmpty()) {
         return response()->json(['message' => 'No stories found in this category.'], 404);
     }
@@ -120,16 +133,17 @@ public function getStoriesByTag($tagId)
     $stories = Story::whereHas('tags', function ($query) use ($tagId) {
         $query->where('tags.id', $tagId); 
     })
-        ->with(['tags' => function ($query) {
-            $query->select('tags.id', 'tags.name');
-        }])
+        ->with(['tags:id,name', 'user:id,username', 'category'])
+        
         ->select(
             'id', 
             'title', 
             'description', 
             'content_type', 
             'cover_image', 
-            'status' 
+            'status' ,
+            'category_id',
+            'user_id'
         )
         ->get();
 
@@ -147,7 +161,8 @@ public function getStoriesByTag($tagId)
 
         $readlaterstories = ReadLater::where('user_id',Auth::id())->get()->pluck('story_id');
       
-        $stories = Story::with(['category' ])
+        $stories =Story::with(['category', 'user:id,username'])
+
         ->whereIn('id', $readlaterstories)
         ->get();
         return StoryResource::collection($stories);
@@ -161,11 +176,16 @@ public function getStoriesByTag($tagId)
          $completedStories = Story::where('category_id', $category->id) 
              ->where('status', 'completed')
              ->with([
-                 'tags' => function ($query) {
-                     $query->select('tags.id', 'tags.name');
-                 }
+               'tags:id,name','category','user:id,username'
              ])
-             ->select('id', 'title', 'cover_image') 
+             ->select(  'id', 
+            'title', 
+            'description', 
+            'content_type', 
+            'cover_image', 
+            'status' ,
+            'category_id',
+            'user_id') 
              ->orderBy('updated_at', 'desc')
              ->get();
      
@@ -178,22 +198,27 @@ public function getStoriesByTag($tagId)
      
 ///////////////////////////////////////////////////////////////////////////
 
-public function getStoriesWithNotPaidChapters($category_id)
+public function getStoriesWithPaidChapters($category_id)
 {
     $stories = Story::where('category_id', $category_id) 
         ->whereHas('chapters', function ($query) {
-            $query->where('payment_status', 'NotPaid');
+            $query->where('payment_status', 'Paid');
         })
         ->with([
-            'tags' => function ($query) { 
-                $query->select('tags.id', 'tags.name');
-            }
-        ])
-        ->select('id', 'title', 'cover_image') 
+               'tags:id,name','category','user:id,username'
+             ])
+          ->select(  'id', 
+            'title', 
+            'description', 
+            'content_type', 
+            'cover_image', 
+            'status' ,
+            'category_id',
+            'user_id') 
         ->get();
 
     if ($stories->isEmpty()) {
-        return response()->json(['message' => 'No stories with unpaid chapters found in this category.'], 404);
+        return response()->json(['message' => 'No stories with paid chapters found in this category.'], 404);
     }
 
     return response()->json($stories, 200);
@@ -201,9 +226,11 @@ public function getStoriesWithNotPaidChapters($category_id)
 //////////////////////////////////////////////////////////////////////////
 
 public function getadvertisementStoryByLatestStory(){
-    $stories=Story::orderBy('created_at','desc')->take(10)
-    ->select('id','title', 'advertisement_image','created_at')
-    ->get();
+   $stories = Story::with(['category', 'user:id,username'])
+        ->select('id', 'title', 'advertisement_image', 'created_at','category_id','user_id')
+        ->orderBy('created_at', 'desc')
+        ->take(10)
+        ->get();
 
     if ($stories->isEmpty()) {
         return response()->json(['message' => 'No new stories found.'], 404);
@@ -217,7 +244,7 @@ public function getadvertisementStoryByLatestStory(){
 public function storyDetails($id)
 {
    
-    $story = Story::with(['category', 'tags', 'MainCharacters'])
+    $story = Story::with(['category', 'tags', 'MainCharacters','user:id,username'])
         ->leftJoin('reviews', 'stories.id', '=', 'reviews.story_id')
         ->leftJoin('readings', 'stories.id', '=', 'readings.story_id')
         ->leftJoin('chapters', 'stories.id', '=', 'chapters.story_id')
@@ -229,6 +256,7 @@ public function storyDetails($id)
             'stories.status',
             'stories.content_type',
             'stories.category_id',
+             'stories.user_id',
             DB::raw('COUNT(DISTINCT CASE WHEN reviews.has_voted = 1 THEN reviews.id END) as votes_count'),
             DB::raw('COUNT(DISTINCT readings.id) as readers_count'),
             DB::raw('COUNT(DISTINCT reviews.feedback) as comments_count'),
@@ -241,7 +269,8 @@ public function storyDetails($id)
             'stories.cover_image',
             'stories.status',
             'stories.content_type',
-            'stories.category_id'
+            'stories.category_id',
+         'stories.user_id'
         )
         ->where('stories.id', $id) 
         ->first();
@@ -425,8 +454,11 @@ public function publishStory($storyId)
 //////////DONE
 public function getPublishedStories()
 {
-    
-    $stories = Auth::user()->stories()->where('publication_status', 'published')->get();
+  $stories = Auth::user()
+        ->stories()
+        ->where('publication_status', 'published')
+        ->with(['category'])
+        ->get();
     return response()->json(StoryResource::collection($stories), 200);
 }
 
@@ -585,7 +617,9 @@ public function forceDestroy($id)
 
      public function getAlldeleted()////
      {
-   $stories = Story::onlyTrashed()->with(['category'])->get();    
+
+   $stories = Auth::user()->stories()->onlyTrashed()->with(['category'])->get();
+       
    return StoryResource::collection($stories);
      }
  }

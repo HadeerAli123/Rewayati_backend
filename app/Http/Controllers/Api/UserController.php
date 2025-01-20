@@ -20,40 +20,50 @@ class UserController extends Controller
     public function login(Request $request)
     {
         try {
-            $validator = Validator::make($request->all(),//   بتجيب كل الداتا الي مدخلها اليوزر الي هنتحقق منها عن طريق الفاليديشن 
-             [
+         
+            $validator = Validator::make($request->all(), [
                 'email' => 'required|email',
                 'password' => 'required|string|min:8',
                 'device_name' => 'required|string|max:255',
-
-    
             ], [
                 "email.required" => "Email is required.",
                 "email.email" => "The email format you provided is invalid.",
                 "password.required" => "Password is required.",
                 "password.min" => "Password must be at least 8 characters.",
             ]);
+    
+            if ($validator->fails()) {
+                return response()->json(['errors' => $validator->errors()], 422);
+            }
+   
+            $user = User::where('email', $request->email)->first();
+    
+        
+            if (!$user) {
+                return response()->json(['error' => 'Email not found.'], 404);
+            }
+    
+            if (!Hash::check($request->password, $user->password)) {
+                return response()->json(['error' => 'Invalid password.'], 401);
+            }
+    
+        
+            $deviceName = $request->device_name; 
+            $token = $user->createToken($deviceName)->plainTextToken;
+    
+            return response()->json([
+                'token' => $token,
+                'user' => $user,
+            ]);
             
-        $user = User::where('email', $request->email)->first();
-        if (!$user) {
-            return response()->json(['error' => 'Email not found.'], 404);
+    
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
         }
-        
-        if (!Auth::attempt($request->only('email', 'password'))) {
-            return response()->json(['error' => 'Invalid password.'], 401);
-        }
-
-        return response()->json([
-            'token' => $user->createToken($request->email),
-            'user' => $user,
-        
-        ]);
-    } catch (\Exception $e) {
-        return response()->json(['error' => $e->getMessage()], 500);
     }
     
-        }
     
+        
     
    
     
@@ -310,4 +320,10 @@ public function selectCategoriesAndGetStories(Request $request)///////////////
         return response()->json($users);
     }
 
+    public function destroy(User $user)
+    {
+        $user->delete();
+
+        return response()->json(['message' => 'User deleted successfully.']);
+    }
 }

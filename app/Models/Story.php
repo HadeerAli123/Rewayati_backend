@@ -9,7 +9,7 @@ class Story extends Model
     use HasFactory ,SoftDeletes;
 
     protected $fillable=[
- 'user_id','title','description','language','maincharacters','copyright','cover_image','advertisement_image','content_type','status','category_id'
+'user_id','title','description','language','maincharacters','copyright','cover_image','advertisement_image','content_type','status','category_id'
     ];
     protected $dates = ['deleted_at'];
     public function isDraft()

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use Illuminate\Support\Facades\Validator;
 use App\Models\Chapter;
+use App\Models\Story;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Http\Resources\ChapterResource;
@@ -32,7 +33,16 @@ class ChapterController extends Controller
   
     public function store(Request $request)
     {
+        if(auth()->user()->role !=='admin'){
+            return response()->json(['error' => 'Admin only can create chapter'], 403);
+   
+           }
         try{
+
+            $story = Story::find($request->story_id);
+            if (!$story || $story->user_id !== auth()->id()) {
+                return response()->json(['error' => 'You can only add chapters to your own stories'], 403);
+            }
        
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255',
@@ -127,52 +137,80 @@ class ChapterController extends Controller
      * Update the specified resource in storage.
      */
  
-    public function update(Request $request,$id)
-    {
+     public function update(Request $request, $id)
+     {
+       
+         if (auth()->user()->role !== 'admin') {
+             return response()->json(['error' => 'Admin only can update chapter'], 403);
+         }
      
-        $validator=Validator::make($request->all(),[
-               'title' => 'required|string|max:255',
-               'content' => 'required|string',
-               'payment_status' => 'required|in:paid,notpaid',
-               'image' =>'nullable|file|image|mimes:jpeg,png,jpg,gif,webp,avif|max:2048',
-               'part_number' => 'required|integer|min:1',
-               'story_id' => 'required|exists:stories,id',
-        ]);
-        if($validator->fails()){
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
-        $chapter=Chapter::find($id);
-        if(! $chapter){
-            return response()->json(['error' => 'notfound'], 404);
+     
+         $chapter = Chapter::find($id);
+         if (!$chapter) {
+             return response()->json(['error' => 'Chapter not found'], 404);
+         }
+     
+        
+         if ($chapter->story->user_id !== auth()->id()) {
+             return response()->json(['error' => 'Not authorized to update this chapter'], 403);
+         }
+     
 
-        }
-        $my_path = $chapter->image ;
-        if(request()->hasFile("image")){
+         $validator = Validator::make($request->all(), [
+             'title' => 'required|string|max:255',
+             'content' => 'required|string',
+             'payment_status' => 'required|in:paid,notpaid',
+             'image' => 'nullable|file|image|mimes:jpeg,png,jpg,gif,webp,avif|max:2048',
+             'part_number' => [
+                 'required',
+                 'integer',
+                 'min:1',
+                 Rule::unique('chapters', 'part_number')
+                     ->where('story_id', $chapter->story_id)
+                     ->ignore($chapter->id),
+             ],
+             'story_id' => 'required|exists:stories,id',
+         ]);
+     
+         if ($validator->fails()) {
+             return response()->json(['errors' => $validator->errors()], 422);
+         }
+     
+       
+         $story = Story::find($request->story_id);
+         if ($story->user_id !== auth()->id()) {
+             return response()->json(['error' => 'Not authorized to update chapter to this story'], 403);
+         }
+     
 
-            $url = $chapter->image;
+         $my_path = $chapter->image;
+         if ($request->hasFile('image')) {
+             $url = $chapter->image;
+             $relativePath = str_replace(url('uploads/stories/') . '/', '', $url);
+     
+             if (Storage::disk('stories')->exists($relativePath)) {
+                 Storage::disk('stories')->delete($relativePath);
+             }
+     
+             $image = $request->file('image');
+             $my_path = $image->store('chapters', 'stories');
+             $my_path = asset('uploads/stories/' . $my_path);
+         }
 
-            $relativePath = str_replace(url('uploads/chapters/').'/' , '', $url);
-            
-            if (Storage::disk('stories')->exists($relativePath)) {
-                Storage::disk('stories')->delete($relativePath);
-            }
-
-            $image = request()->file("image");
-            $my_path=$image->store('chapters','stories');
-            $my_path= asset('uploads/stories/' . $my_path); 
-        }
-
-        $chapter->title=$request->title;
-        $chapter->content=$request->content;
-        $chapter->payment_status=$request->payment_status;
-        $chapter->image = $my_path;
-        $chapter->part_number=$request->part_number;
-        $chapter->story_id=$request->story_id;
-    $chapter->save();
-    
-    return response()->json(['message' => 'chapter updated successfully', 'chapter' => $chapter], 200);
-        }
-    
+         $chapter->title = $request->title;
+         $chapter->content = $request->content;
+         $chapter->payment_status = $request->payment_status;
+         $chapter->image = $my_path;
+         $chapter->part_number = $request->part_number;
+         $chapter->story_id = $request->story_id;
+         $chapter->save();
+     
+         return response()->json([
+             'message' => 'Chapter updated successfully',
+             'chapter' => $chapter,
+         ], 200);
+     }
+     
 
     /**
      * Remove the specified resource from storage.
@@ -181,6 +219,15 @@ class ChapterController extends Controller
    
      public function destroy($story_id, $chapter_id)
      {
+        
+            if (auth()->user()->role !=='admin'){
+               return response()->json(['error' => 'Admin only can delete chapter'], 403);
+            }
+
+            if ($chapter->story->user_id !== auth()->id()) {
+              return response()->json(['error' => 'Not authorized to delete this chapter'], 403);
+            }
+       
          $validator = Validator::make(['story_id' => $story_id], [
              'story_id' => 'required|exists:stories,id',
          ]);

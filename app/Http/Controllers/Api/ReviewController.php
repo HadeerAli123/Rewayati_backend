@@ -186,7 +186,10 @@ class ReviewController extends Controller
         $review = Review::where('story_id', $storyId)
                         ->where('user_id', auth()->id())
                         ->first();
-    
+   if ($review->user_id !== auth()->id()) {
+ return response()->json(['error' => 'You are not authorized to delete this feedback'], 403);
+                        }
+                        
         if (!$review || !$review->feedback) {
             return response()->json(['error' => 'No feedback found to delete'], 404);
         }
@@ -198,7 +201,7 @@ class ReviewController extends Controller
         return response()->json(['message' => 'Feedback deleted successfully'], 200);
     }
     
-//     ///////////////////////تاكيد
+    ///////////////////////تاكيد
 //     public function deleteReview($storyId)
 // {
 //     $review = Review::where('story_id', $storyId)
@@ -217,12 +220,35 @@ class ReviewController extends Controller
 
 //     return response()->json(['message' => 'Vote and feedback deleted successfully'], 200);
 // }
+
+public function deleteReview($storyId)
+{
+    $review = Review::where('story_id', $storyId)
+                    ->where('user_id', auth()->id())
+                    ->first();
+
+    if (!$review) {
+        return response()->json(['error' => 'No review found to delete'], 404);
+    }
+
+    // التحقق من الشروط
+    if ($review->feedback === null && $review->has_voted === false) {
+        $review->delete(); // حذف الريفيو بالكامل من قاعدة البيانات
+        return response()->json(['message' => 'Review deleted successfully'], 200);
+    }
+
+}
+
+
 public function blockFeedback($reviewId){
     $review = Review::findOrFail($reviewId);
-
+    if (is_null($review->feedback)) {
+        return response()->json(['message' => 'Feedback not found'], 404);
+    }
    
     $user = $review->user; 
     $review->feedback_status = 'blocked';
+  
     $review->save();
     $user->notify(new BlockedFeedbackNotification($review->feedback));
     return response()->json(['message' => 'Feedback blocked and notification sent to user.']);

@@ -7,7 +7,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-class User extends Authenticatable
+use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Notifications\CustomVerifyEmail;
+use App\Notifications\MyResetPasswordNotification;
+class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasApiTokens, HasFactory, Notifiable;
@@ -65,10 +68,25 @@ public function readings()
 {
     return $this->hasMany(Reading::class);
 }
+// public function subscriptions()
+// {
+//     return $this->hasMany(Subscription::class);
+// }
+// public function purchases()
+// {
+//     return $this->hasMany(Purchase::class);
+// }
+public function sendEmailVerificationNotification()
+{
+    $this->notify(new CustomVerifyEmail());
+
+}
 public function sendPasswordResetNotification($token)
 {
     $this->notify(new MyResetPasswordNotification($token));
 }
 }
+
+
 
 

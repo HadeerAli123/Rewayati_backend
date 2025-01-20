@@ -30,18 +30,15 @@ class MyResetPasswordNotification extends Notification
     
     public function toMail($notifiable)
     {
+        $resetUrl = url('https://chocolate-eland-808338.hostingersite.com/auth/reset-password') 
+        . '&email=' . urlencode($notifiable->email);
         return (new MailMessage)
-            ->subject('welcom from our website ')
-            ->line('this mail is becouse you wanted to reset your password so please click the below button to reset.')
-            ->line("It's always important to be cautious with passwords. Make sure to use strong, unique passwords.")
+        ->subject('Reset Your Password')
+        ->view('reset_password', ['url' => $resetUrl]);
 
-            // ->action('Reset Password', env('FRONT_DOMAIN_URL') .'reset'. '?token=' . urlencode($this->token)
-            //     . '&email=' . urlencode($notifiable->email))
-            ->action('Reset Password', env('https://whitesmoke-coyote-648419.hostingersite.com') . '/auth/reset-password?token=' . urlencode($this->token)
-    . '&email=' . urlencode($notifiable->email))
+}
 
-            ->line('If you did not request a password reset, no further action is required.');
-    }
+    
 
     /**
      * Get the array representation of the notification.

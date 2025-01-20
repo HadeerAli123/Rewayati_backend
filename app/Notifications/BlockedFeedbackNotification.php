@@ -36,12 +36,7 @@ protected $feedback;
     {
         return (new MailMessage)
         ->subject('Your Feedback Has Been Blocked')
-        ->line('Hello,')
-        ->line('Your feedback has been blocked due to a violation of our rules.')
-        ->line('Feedback: "' . $this->feedback . '"')
-        ->line('If you believe this is a mistake, please contact us.')
-        ->action('Visit Website', url('/'))
-        ->line('Thank you for your understanding.');
+        ->view('block_feedback', ['feedback' => $this->feedback]);
     }
 
     /**

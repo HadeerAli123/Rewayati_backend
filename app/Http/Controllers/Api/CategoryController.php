@@ -27,6 +27,9 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         try{
+            if (auth()->user()->role!=='admin'){
+                return response()->json(['error' => 'Admin only can store categories'], 403);
+            }
            
         $validator = Validator::make($request->all(),[
                 'category_name' => 'required|string|max:255|unique:categories,category_name',
@@ -43,6 +46,8 @@ class CategoryController extends Controller
             }
            $category=new Category();
            $category->category_name=$request->category_name;
+         
+           
            $category->save();
            return response()->json(['message'=>'Category created successfully','category'=>$category],200);
     }
@@ -64,6 +69,10 @@ class CategoryController extends Controller
     
      public function update(Request $request, $id)
      {
+        if(auth()->user()->role !=='admin'){
+         return response()->json(['error' => 'Admin only can  update  categories'], 403);
+
+        }
          $validator = Validator::make($request->all(), [
              'category_name' => 'required|string|max:255|unique:categories,category_name,' . $id,
          ]);
@@ -92,6 +101,10 @@ class CategoryController extends Controller
 
     public function destroy(Category $category)
     {
+        if(auth()->user()->role !=='admin'){
+            return response()->json(['error' => 'Admin only can  delete   category'], 403);
+   
+           }
         $category->delete();
         return response()->json(['message' => 'Category deleted successfully'], 200);
     }
